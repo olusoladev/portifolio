@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { initAnalytics, trackEvent, trackPageView } from "./analytics";
 
 const stackStrip = [
   { label: "React", mark: "R", color: "#79d7ff", tint: "rgba(121, 215, 255, 0.14)" },
@@ -420,6 +421,21 @@ function App() {
   const [showQuickActions, setShowQuickActions] = useState(false);
 
   useEffect(() => {
+    initAnalytics();
+    trackPageView();
+
+    const handleHashChange = () => {
+      trackPageView(window.location.pathname + window.location.hash);
+    };
+
+    window.addEventListener("hashchange", handleHashChange);
+
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange);
+    };
+  }, []);
+
+  useEffect(() => {
     const handleScroll = () => {
       setShowQuickActions(window.scrollY > 280);
     };
@@ -433,7 +449,14 @@ function App() {
   }, []);
 
   const scrollToTop = () => {
+    trackEvent("scroll_to_top_click", {
+      section: "floating_actions",
+    });
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleTrackedClick = (eventName, params = {}) => () => {
+    trackEvent(eventName, params);
   };
 
   return (
@@ -442,16 +465,20 @@ function App() {
       <div className="ambient ambient-right" aria-hidden="true" />
 
       <header className="site-header">
-        <a className="brand-lockup" href="#top">
+        <a
+          className="brand-lockup"
+          href="#top"
+          onClick={handleTrackedClick("nav_click", { target_section: "top", placement: "header_brand" })}
+        >
           <span className="brand-mark">S</span>
           <span className="brand-text">Sola Moses Paul</span>
         </a>
 
         <nav className="site-nav" aria-label="Primary">
-          <a href="#capabilities">Capabilities</a>
-          <a href="#experience">Experience</a>
-          <a href="#feedback">Feedback</a>
-          <a href="#contact">Contact</a>
+          <a href="#capabilities" onClick={handleTrackedClick("nav_click", { target_section: "capabilities", placement: "header_nav" })}>Capabilities</a>
+          <a href="#experience" onClick={handleTrackedClick("nav_click", { target_section: "experience", placement: "header_nav" })}>Experience</a>
+          <a href="#feedback" onClick={handleTrackedClick("nav_click", { target_section: "feedback", placement: "header_nav" })}>Feedback</a>
+          <a href="#contact" onClick={handleTrackedClick("nav_click", { target_section: "contact", placement: "header_nav" })}>Contact</a>
         </nav>
       </header>
 
@@ -468,13 +495,27 @@ function App() {
             </p>
 
             <div className="hero-actions">
-              <a className="button button-primary" href="#contact">
+              <a
+                className="button button-primary"
+                href="#contact"
+                onClick={handleTrackedClick("hero_cta_click", { cta_label: "contact", destination: "contact_section" })}
+              >
                 Contact
               </a>
-              <a className="button button-secondary" href="https://docs.google.com/document/d/1QhJEp5iKxSKgsJKmt7vednH6oo4_po2OZekdNePLDCE/edit?usp=sharing" target="_blank" rel="noreferrer">
+              <a
+                className="button button-secondary"
+                href="https://docs.google.com/document/d/1QhJEp5iKxSKgsJKmt7vednH6oo4_po2OZekdNePLDCE/edit?usp=sharing"
+                target="_blank"
+                rel="noreferrer"
+                onClick={handleTrackedClick("hero_cta_click", { cta_label: "view_cv", destination: "external_cv" })}
+              >
                 View CV
               </a>
-              <a className="button button-secondary" href="#experience">
+              <a
+                className="button button-secondary"
+                href="#experience"
+                onClick={handleTrackedClick("hero_cta_click", { cta_label: "browse_experience", destination: "experience_section" })}
+              >
                 Browse experience
               </a>
             </div>
@@ -567,7 +608,17 @@ function App() {
                   <h3>{item.company}</h3>
                   <div className="experience-links">
                     {item.links.map((link) => (
-                      <a href={link.href} key={link.href} target="_blank" rel="noreferrer">
+                      <a
+                        href={link.href}
+                        key={link.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={handleTrackedClick("experience_link_click", {
+                          company: item.company,
+                          role: item.role,
+                          link_label: link.label,
+                        })}
+                      >
                         <span>{link.label}</span>
                         <ExternalLinkIcon />
                       </a>
@@ -619,7 +670,13 @@ function App() {
                 <h3>{panel.title}</h3>
                 <p>{panel.copy}</p>
                 {panel.href ? (
-                  <a className="reference-link" href={panel.href} target="_blank" rel="noreferrer">
+                  <a
+                    className="reference-link"
+                    href={panel.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={handleTrackedClick("reference_link_click", { reference_name: panel.title })}
+                  >
                     Open profile
                   </a>
                 ) : null}
@@ -638,11 +695,23 @@ function App() {
           </div>
 
           <div className="contact-panel">
-            <a href="mailto:paulsola79@gmail.com">paulsola79@gmail.com</a>
+            <a
+              href="mailto:paulsola79@gmail.com"
+              onClick={handleTrackedClick("contact_click", { contact_method: "email", placement: "footer" })}
+            >
+              paulsola79@gmail.com
+            </a>
             <p>Based in Nigeria</p>
             <div className="social-row contact-socials">
               {socialLinks.map((item) => (
-                <a className="social-chip" key={`contact-${item.label}`} href={item.href} target="_blank" rel="noreferrer">
+                <a
+                  className="social-chip"
+                  key={`contact-${item.label}`}
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={handleTrackedClick("social_link_click", { social_network: item.label.toLowerCase(), placement: "footer" })}
+                >
                   <SocialIcon type={item.icon} />
                   <span>{item.label}</span>
                 </a>
@@ -659,6 +728,7 @@ function App() {
           target="_blank"
           rel="noreferrer"
           aria-label="Chat on WhatsApp"
+          onClick={handleTrackedClick("contact_click", { contact_method: "whatsapp", placement: "floating_action" })}
         >
           <svg viewBox="0 0 448 512" aria-hidden="true">
             <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7 .9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z" />
