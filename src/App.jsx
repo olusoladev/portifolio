@@ -588,7 +588,7 @@ function App() {
         <section className="section-block" id="experience">
           <SectionHeading
             eyebrow="Experience"
-            title="These are the roles that best show how I work."
+            title="Work shaped across product, platform, and delivery."
             body="I am leading with the experiences that best represent my range across product, engineering, platform work, and delivery."
           />
 
