@@ -93,6 +93,28 @@ const capabilityRows = [
   },
 ];
 
+const personalProjects = [
+  {
+    name: "imustcomment",
+    label: "Personal side project",
+    year: "2026",
+    image: "/projects/imustcomment.png",
+    imageAlt: "imustcomment overlapping speech bubble logo",
+    tagline: "The post is theirs. The conversation is yours.",
+    summary:
+      "An independent public discussion layer for TikTok videos, Instagram posts, and Reels.",
+    product:
+      "Social conversations can disappear when native comments are disabled, removed, or trapped inside a platform. People need a durable, shareable place to keep the discussion going.",
+    solution:
+      "Paste a supported public link to create one canonical discussion page that anyone can find, share, read, and join without an account. The media stays on its source platform while the conversation remains accessible independently.",
+    tags: ["Next.js", "React", "TypeScript", "Supabase", "PostgreSQL", "Product design"],
+    links: [
+      { label: "View live product", href: "https://www.imustcomment.space" },
+      { label: "View source", href: "https://github.com/OpenCommentsOrg/app" },
+    ],
+  },
+];
+
 const mainExperiences = [
   {
     role: "Technical Lead / Principal Engineer",
@@ -476,6 +498,7 @@ function App() {
 
         <nav className="site-nav" aria-label="Primary">
           <a href="#capabilities" onClick={handleTrackedClick("nav_click", { target_section: "capabilities", placement: "header_nav" })}>Capabilities</a>
+          <a href="#projects" onClick={handleTrackedClick("nav_click", { target_section: "projects", placement: "header_nav" })}>Projects</a>
           <a href="#experience" onClick={handleTrackedClick("nav_click", { target_section: "experience", placement: "header_nav" })}>Experience</a>
           <a href="#feedback" onClick={handleTrackedClick("nav_click", { target_section: "feedback", placement: "header_nav" })}>Feedback</a>
           <a href="#contact" onClick={handleTrackedClick("nav_click", { target_section: "contact", placement: "header_nav" })}>Contact</a>
@@ -577,6 +600,79 @@ function App() {
                       <span className="tag" key={tag}>
                         {tag}
                       </span>
+                    ))}
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="section-block" id="projects">
+          <SectionHeading
+            eyebrow="Personal Projects"
+            title="Products I build from problem to production."
+            body="Self-directed work where I own the product thinking, experience design, engineering, and operational details end to end."
+          />
+
+          <div className="project-list">
+            {personalProjects.map((project) => (
+              <article className="project-showcase" key={project.name}>
+                <div className="project-visual">
+                  <div className="project-visual-topline">
+                    <span>{project.label}</span>
+                    <span>{project.year}</span>
+                  </div>
+                  <div className="project-brand">
+                    <img src={project.image} alt={project.imageAlt} />
+                    <div>
+                      <p>{project.name}</p>
+                      <span>{project.tagline}</span>
+                    </div>
+                  </div>
+                  <div className="project-conversation" aria-hidden="true">
+                    <span>One link</span>
+                    <span>One public conversation</span>
+                  </div>
+                </div>
+
+                <div className="project-content">
+                  <p className="project-label">{project.label}</p>
+                  <h3>{project.name}</h3>
+                  <p className="project-summary">{project.summary}</p>
+
+                  <div className="project-story">
+                    <div>
+                      <p className="project-story-label">Product</p>
+                      <p>{project.product}</p>
+                    </div>
+                    <div>
+                      <p className="project-story-label">Solution</p>
+                      <p>{project.solution}</p>
+                    </div>
+                  </div>
+
+                  <div className="tag-row">
+                    {project.tags.map((tag) => (
+                      <span className="tag" key={tag}>{tag}</span>
+                    ))}
+                  </div>
+
+                  <div className="project-links">
+                    {project.links.map((link) => (
+                      <a
+                        href={link.href}
+                        key={link.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={handleTrackedClick("project_link_click", {
+                          project: project.name,
+                          link_label: link.label,
+                        })}
+                      >
+                        <span>{link.label}</span>
+                        <ExternalLinkIcon />
+                      </a>
                     ))}
                   </div>
                 </div>
